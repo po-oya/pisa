@@ -24,7 +24,7 @@ struct block_max_maxscore_query {
         for (auto& en: cursors) {
             ordered_cursors.push_back(&en);
         }
-
+        auto start_alg_prepartions = std::chrono::steady_clock::now();
         // sort enumerators by increasing maxscore
         std::sort(ordered_cursors.begin(), ordered_cursors.end(), [](Cursor* lhs, Cursor* rhs) {
             return lhs->max_score() < rhs->max_score();
@@ -42,6 +42,12 @@ struct block_max_maxscore_query {
                 return lhs.docid() < rhs.docid();
             })->docid();
 
+        auto end_alg_prepartions = std::chrono::steady_clock::now();
+        double alg_prepartions_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_alg_prepartions - start_alg_prepartions).count();
+        spdlog::info("Time taken to prepare running alg on this query: {}ms", alg_prepartions_ms);
+
+        auto start_alg_exec = std::chrono::steady_clock::now();
         while (non_essential_lists < ordered_cursors.size() && cur_doc < max_docid) {
             float score = 0;
             uint64_t next_doc = max_docid;
@@ -92,6 +98,11 @@ struct block_max_maxscore_query {
             }
             cur_doc = next_doc;
         }
+
+        auto end_alg_exec = std::chrono::steady_clock::now();
+        double alg_exec_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_alg_exec - start_alg_exec).count();
+        spdlog::info("Time taken to for running the alg on this query: {}ms", alg_exec_ms);
     }
 
     std::vector<typename topk_queue::entry_type> const& topk() const { return m_topk.topk(); }

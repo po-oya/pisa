@@ -30,3 +30,6 @@ node_modules
 *.aux
 *.log
 docs/**/*.pdf
+
+# VSCode Junk
+.vscode/
