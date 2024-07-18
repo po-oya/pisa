@@ -1,15 +1,22 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "concepts.hpp"
 #include "concepts/posting_cursor.hpp"
 #include "topk_queue.hpp"
+// #include "utils/measure_pars.hpp"
 
 namespace pisa {
 
 struct block_max_maxscore_query {
+    /******/
+    std::string qid;
+    /******/
+
     explicit block_max_maxscore_query(topk_queue& topk) : m_topk(topk) {}
+    explicit block_max_maxscore_query(topk_queue& topk, std::string id) : m_topk(topk), qid(id) {}
 
     template <typename CursorRange>
     PISA_REQUIRES((concepts::BlockMaxPostingCursor<pisa::val_t<CursorRange>>))
@@ -53,6 +60,7 @@ struct block_max_maxscore_query {
             uint64_t next_doc = max_docid;
             for (size_t i = non_essential_lists; i < ordered_cursors.size(); ++i) {
                 if (ordered_cursors[i]->docid() == cur_doc) {
+                    // p1 if
                     score += ordered_cursors[i]->score();
                     ordered_cursors[i]->next();
                 }
@@ -65,25 +73,30 @@ struct block_max_maxscore_query {
                 non_essential_lists > 0 ? upper_bounds[non_essential_lists - 1] : 0;
             for (int i = non_essential_lists - 1; i + 1 > 0; --i) {
                 if (ordered_cursors[i]->block_max_docid() < cur_doc) {
+                    // p2 if
                     ordered_cursors[i]->block_max_next_geq(cur_doc);
                 }
                 block_upper_bound -=
                     ordered_cursors[i]->max_score() - ordered_cursors[i]->block_max_score();
                 if (!m_topk.would_enter(score + block_upper_bound)) {
+                    // brz_1
                     break;
                 }
             }
             if (m_topk.would_enter(score + block_upper_bound)) {
                 // try to complete evaluation with non-essential lists
+                // p3
                 for (size_t i = non_essential_lists - 1; i + 1 > 0; --i) {
                     ordered_cursors[i]->next_geq(cur_doc);
                     if (ordered_cursors[i]->docid() == cur_doc) {
+                        // p4
                         auto s = ordered_cursors[i]->score();
                         block_upper_bound += s;
                     }
                     block_upper_bound -= ordered_cursors[i]->block_max_score();
 
                     if (!m_topk.would_enter(score + block_upper_bound)) {
+                        // brz_2
                         break;
                     }
                 }
@@ -91,6 +104,7 @@ struct block_max_maxscore_query {
             }
             if (m_topk.insert(score, cur_doc)) {
                 // update non-essential lists
+                // p5
                 while (non_essential_lists < ordered_cursors.size()
                        && !m_topk.would_enter(upper_bounds[non_essential_lists])) {
                     non_essential_lists += 1;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <optional>
 
 #include <CLI/CLI.hpp>
@@ -32,6 +33,8 @@
 #include "wand_data.hpp"
 #include "wand_data_compressed.hpp"
 #include "wand_data_raw.hpp"
+#include "util/measure_pars.hpp"
+
 
 using namespace pisa;
 using ranges::views::enumerate;
@@ -57,6 +60,17 @@ void evaluate_queries(
     auto scorer = scorer::from_params(scorer_params, wdata);
     std::function<std::vector<typename topk_queue::entry_type>(Query)> query_fun;
 
+    /* ********************* */
+    // spdlog::info(queries.size());
+    // spdlog::info(*queries[0].id());
+    // Query const& tq = queries[0];
+    // spdlog::info(tq.terms().size());
+    // spdlog::info(*queries[1].id());
+    // query_stat_logging.reserve(4);
+    // spdlog::info(query_stat_logging.size());
+
+    /* ********************* */
+
     if (query_type == "wand") {
         query_fun = [&](Query query) {
             topk_queue topk(k);
@@ -79,7 +93,9 @@ void evaluate_queries(
     } else if (query_type == "block_max_maxscore") {
         query_fun = [&](Query query) {
             topk_queue topk(k);
-            block_max_maxscore_query block_max_maxscore_q(topk);
+            auto tqid_string_view = query.id();
+            std::string tqid(tqid_string_view.value_or(std::to_string(42))); // This 42 could cause some bug if there are queries actually without an ID!
+            block_max_maxscore_query block_max_maxscore_q(topk, tqid);
             block_max_maxscore_q(
                 make_block_max_scored_cursors(index, wdata, *scorer, query, weighted),
                 index.num_docs()
@@ -151,6 +167,22 @@ void evaluate_queries(
     auto source = std::make_shared<mio::mmap_source>(documents_filename.c_str());
     auto docmap = Payload_Vector<>::from(*source);
 
+    /* ********************* */
+    size_t number_of_queries = queries.size();
+    for(size_t qitr = 0; qitr < number_of_queries; qitr++){
+        spdlog::info("Allocating space to query_stat_logging vector ...");
+        Query const& tq = queries[qitr];
+        auto tqid_string_view = tq.id();
+        std::string tqid(tqid_string_view.value_or(std::to_string(qitr)));
+        // block_max_score_query_stat_logging query_log(std::to_string(qitr), 10, 0);
+        block_max_score_query_stat_logging query_log(tqid, tq.terms().size(), 0);
+        query_stat_logging[tqid] = query_log;
+        // query_stat_logging["test"] = query_log;
+        spdlog::info(query_log.qid);
+        spdlog::info(query_log.term_cnt);
+    }
+    /* ********************* */
+
     std::vector<std::vector<typename topk_queue::entry_type>> raw_results(queries.size());
     auto start_batch = std::chrono::steady_clock::now();
     tbb::parallel_for(size_t(0), queries.size(), [&, query_fun](size_t query_idx) {
@@ -217,6 +249,7 @@ int main(int argc, const char** argv) {
     }
 
     auto iteration = "Q0";
+
 
     auto params = std::make_tuple(
         app.index_filename(),
