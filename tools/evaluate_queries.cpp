@@ -169,8 +169,10 @@ void evaluate_queries(
 
     /* ********************* */
     size_t number_of_queries = queries.size();
+    spdlog::info("Allocating space to query_stat_logging vector ...");
+    
     for(size_t qitr = 0; qitr < number_of_queries; qitr++){
-        spdlog::info("Allocating space to query_stat_logging vector ...");
+        
         Query const& tq = queries[qitr];
         auto tqid_string_view = tq.id();
         std::string tqid(tqid_string_view.value_or(std::to_string(qitr)));
@@ -178,8 +180,8 @@ void evaluate_queries(
         block_max_score_query_stat_logging query_log(tqid, tq.terms().size(), 0);
         query_stat_logging[tqid] = query_log;
         // query_stat_logging["test"] = query_log;
-        spdlog::info(query_log.qid);
-        spdlog::info(query_log.term_cnt);
+        // spdlog::info(query_log.qid);
+        // spdlog::info(query_log.term_cnt);
     }
     /* ********************* */
 
@@ -193,17 +195,52 @@ void evaluate_queries(
     for (size_t query_idx = 0; query_idx < raw_results.size(); ++query_idx) {
         auto results = raw_results[query_idx];
         auto qid = queries[query_idx].id();
-        for (auto&& [rank, result]: enumerate(results)) {
-            std::cout << fmt::format(
-                "{} {} {} {} {} {}\n",
-                qid.value_or(std::to_string(query_idx)),
-                iteration,
-                docmap[result.second],
-                rank + 1,
-                result.first,
-                run_id
-            );
-        }
+        // for (auto&& [rank, result]: enumerate(results)) {
+        //     std::cout << fmt::format(
+        //         "{} {} {} {} {} {}\n",
+        //         qid.value_or(std::to_string(query_idx)),
+        //         iteration,
+        //         docmap[result.second],
+        //         rank + 1,
+        //         result.first,
+        //         run_id
+        //     );
+        // }
+        std::string tqid(qid.value_or(std::to_string(query_idx)));
+        // for (size_t wcnt_itr{0}; wcnt_itr < query_stat_logging[tqid].while_cnt; wcnt_itr++) {
+        //     std::cout << fmt::format(
+        //         "qid:{},wcnt:{}-----> p1:{}    p2:{}   p3:{}   p4:{}   p5:{}   br1:{}  br2:{}\n",
+        //         tqid,
+        //         wcnt_itr,
+        //         query_stat_logging[tqid].p1_cnt[wcnt_itr],
+        //         query_stat_logging[tqid].p2_cnt[wcnt_itr],
+        //         query_stat_logging[tqid].p3_cnt[wcnt_itr],
+        //         query_stat_logging[tqid].p4_cnt[wcnt_itr],
+        //         query_stat_logging[tqid].p5_cnt[wcnt_itr],
+        //         query_stat_logging[tqid].br1_cnt[wcnt_itr],
+        //         query_stat_logging[tqid].br2_cnt[wcnt_itr]
+        //     );
+        // }
+        std::cout << fmt::format(
+        "qid:{},\ttermcnt:{}\twcnt:{},\tnon_es:{},\toc_size{},\tf1:{},\tf2:{}\tf3:{}\tp1:{}\tp2:{}\tp3:{}\tp4:{}\tp5:{}\tp6:{}\tp7:{}\tbr1:{}\tbr2:{}\n",
+            tqid,
+            query_stat_logging[tqid].term_cnt,
+            query_stat_logging[tqid].while_cnt,
+            query_stat_logging[tqid].non_ess_val,
+            query_stat_logging[tqid].oc_size,
+            query_stat_logging[tqid].f1_cnt_total,
+            query_stat_logging[tqid].f2_cnt_total,
+            query_stat_logging[tqid].f3_cnt_total,
+            query_stat_logging[tqid].p1_cnt_total,
+            query_stat_logging[tqid].p2_cnt_total,
+            query_stat_logging[tqid].p3_cnt_total,
+            query_stat_logging[tqid].p4_cnt_total,
+            query_stat_logging[tqid].p5_cnt_total,
+            query_stat_logging[tqid].p6_cnt_total,
+            query_stat_logging[tqid].p7_cnt_total,
+            query_stat_logging[tqid].br1_cnt_total,
+            query_stat_logging[tqid].br2_cnt_total
+        );
     }
     auto end_print = std::chrono::steady_clock::now();
     double batch_ms =
