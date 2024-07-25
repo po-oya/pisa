@@ -57,7 +57,7 @@ struct block_max_maxscore_query {
 
 
         /**********/
-        this_query_stats.oc_size = ordered_cursors.size();
+        // this_query_stats.oc_size = ordered_cursors.size();
         /**********/
 
         /**********/
@@ -67,7 +67,7 @@ struct block_max_maxscore_query {
         while (non_essential_lists < ordered_cursors.size() && cur_doc < max_docid) {
             /*******/
             // w_cnt
-            this_query_stats.while_cnt++;
+            // this_query_stats.while_cnt++;
             /*******/
             
             float score = 0;
@@ -75,13 +75,13 @@ struct block_max_maxscore_query {
             for (size_t i = non_essential_lists; i < ordered_cursors.size(); ++i) {
                 // f1_cnt
                 /**********/
-                this_query_stats.f1_cnt_total++;
+                // this_query_stats.f1_cnt_total++;
                 /**********/
 
                 if (ordered_cursors[i]->docid() == cur_doc) {
                     // p1_cnt
                     /*******/
-                    this_query_stats.p1_cnt_total++;
+                    // this_query_stats.p1_cnt_total++;
                     /*******/
 
                     score += ordered_cursors[i]->score();
@@ -90,7 +90,7 @@ struct block_max_maxscore_query {
                 if (ordered_cursors[i]->docid() < next_doc) {
                     // p2_cnt
                     /**********/
-                    this_query_stats.p2_cnt_total++;
+                    // this_query_stats.p2_cnt_total++;
                     /**********/
 
                     next_doc = ordered_cursors[i]->docid();
@@ -102,13 +102,13 @@ struct block_max_maxscore_query {
             for (int i = non_essential_lists - 1; i + 1 > 0; --i) {
                 // f2_cnt
                 /**********/
-                this_query_stats.f2_cnt_total++;
+                // this_query_stats.f2_cnt_total++;
                 /**********/
 
                 if (ordered_cursors[i]->block_max_docid() < cur_doc) {
                     // p3_cnt
                     /*******/
-                    query_stat_logging[qid].p3_cnt_total++;
+                    // query_stat_logging[qid].p3_cnt_total++;
                     /*******/
                     ordered_cursors[i]->block_max_next_geq(cur_doc);
                 }
@@ -117,7 +117,7 @@ struct block_max_maxscore_query {
                 if (!m_topk.would_enter(score + block_upper_bound)) {
                     // brz_1_cnt
                     /*******/
-                    this_query_stats.br1_cnt_total++;
+                    // this_query_stats.br1_cnt_total++;
                     /*******/
                     break;
                 }
@@ -126,20 +126,20 @@ struct block_max_maxscore_query {
                 // try to complete evaluation with non-essential lists
                 // p4_cnt
                 /*******/
-                this_query_stats.p4_cnt_total++;
+                // this_query_stats.p4_cnt_total++;
                 /*******/                
 
                 for (size_t i = non_essential_lists - 1; i + 1 > 0; --i) {
                     // f3_cnt
                     /**********/
-                    this_query_stats.f3_cnt_total++;
+                    // this_query_stats.f3_cnt_total++;
                     /**********/
 
                     ordered_cursors[i]->next_geq(cur_doc);
                     if (ordered_cursors[i]->docid() == cur_doc) {
                         // p5_cnt
                         /*******/
-                        query_stat_logging[qid].p5_cnt_total++;
+                        // query_stat_logging[qid].p5_cnt_total++;
                         /*******/                        
                         auto s = ordered_cursors[i]->score();
                         block_upper_bound += s;
@@ -149,7 +149,7 @@ struct block_max_maxscore_query {
                     if (!m_topk.would_enter(score + block_upper_bound)) {
                         // brz_2_cnt
                         /*******/
-                        query_stat_logging[qid].br2_cnt_total++;
+                        // query_stat_logging[qid].br2_cnt_total++;
                         /*******/                        
                         break;
                     }
@@ -160,13 +160,13 @@ struct block_max_maxscore_query {
                 // update non-essential lists
                 // p6_cnt
                 /*******/
-                this_query_stats.p6_cnt_total++;
+                // this_query_stats.p6_cnt_total++;
                 /*******/   
                 while (non_essential_lists < ordered_cursors.size()
                        && !m_topk.would_enter(upper_bounds[non_essential_lists])) {
                     // p7_cnt
                     /**********/
-                    this_query_stats.p7_cnt_total++;
+                    // this_query_stats.p7_cnt_total++;
                     /**********/
                     non_essential_lists += 1;
                 }

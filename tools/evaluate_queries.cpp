@@ -222,25 +222,34 @@ void evaluate_queries(
         //     );
         // }
         std::cout << fmt::format(
-        "qid:{},\ttermcnt:{},\twcnt:{},\tnon_es:{},\toc_size{},\tf1:{},\tf2:{},\tf3:{},\tp1:{},\tp2:{},\tp3:{},\tp4:{},\tp5:{},\tp6:{},\tp7:{},\tbr1:{},\tbr2:{},\n",
+        "qid:{},\ttermcnt:{},\talg_prep_ms:{},\talg_while_ms:{},\talg_total_ms:{},\n",
             tqid,
             query_stat_logging[tqid].term_cnt,
-            query_stat_logging[tqid].while_cnt,
-            query_stat_logging[tqid].non_ess_val,
-            query_stat_logging[tqid].oc_size,
-            query_stat_logging[tqid].f1_cnt_total,
-            query_stat_logging[tqid].f2_cnt_total,
-            query_stat_logging[tqid].f3_cnt_total,
-            query_stat_logging[tqid].p1_cnt_total,
-            query_stat_logging[tqid].p2_cnt_total,
-            query_stat_logging[tqid].p3_cnt_total,
-            query_stat_logging[tqid].p4_cnt_total,
-            query_stat_logging[tqid].p5_cnt_total,
-            query_stat_logging[tqid].p6_cnt_total,
-            query_stat_logging[tqid].p7_cnt_total,
-            query_stat_logging[tqid].br1_cnt_total,
-            query_stat_logging[tqid].br2_cnt_total
+            query_stat_logging[tqid].talg_prep_ms,
+            query_stat_logging[tqid].talg_while_ms,
+            query_stat_logging[tqid].talg_total_ms,
         );
+
+        // std::cout << fmt::format(
+        // "qid:{},\ttermcnt:{},\twcnt:{},\tnon_es:{},\toc_size{},\tf1:{},\tf2:{},\tf3:{},\tp1:{},\tp2:{},\tp3:{},\tp4:{},\tp5:{},\tp6:{},\tp7:{},\tbr1:{},\tbr2:{},\n",
+        //     tqid,
+        //     query_stat_logging[tqid].term_cnt,
+        //     query_stat_logging[tqid].while_cnt,
+        //     query_stat_logging[tqid].non_ess_val,
+        //     query_stat_logging[tqid].oc_size,
+        //     query_stat_logging[tqid].f1_cnt_total,
+        //     query_stat_logging[tqid].f2_cnt_total,
+        //     query_stat_logging[tqid].f3_cnt_total,
+        //     query_stat_logging[tqid].p1_cnt_total,
+        //     query_stat_logging[tqid].p2_cnt_total,
+        //     query_stat_logging[tqid].p3_cnt_total,
+        //     query_stat_logging[tqid].p4_cnt_total,
+        //     query_stat_logging[tqid].p5_cnt_total,
+        //     query_stat_logging[tqid].p6_cnt_total,
+        //     query_stat_logging[tqid].p7_cnt_total,
+        //     query_stat_logging[tqid].br1_cnt_total,
+        //     query_stat_logging[tqid].br2_cnt_total
+        // );
     }
     auto end_print = std::chrono::steady_clock::now();
     double batch_ms =
