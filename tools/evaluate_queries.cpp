@@ -222,7 +222,7 @@ void evaluate_queries(
         //     );
         // }
         std::cout << fmt::format(
-        "qid:{},\ttermcnt:{}\twcnt:{},\tnon_es:{},\toc_size{},\tf1:{},\tf2:{}\tf3:{}\tp1:{}\tp2:{}\tp3:{}\tp4:{}\tp5:{}\tp6:{}\tp7:{}\tbr1:{}\tbr2:{}\n",
+        "qid:{},\ttermcnt:{},\twcnt:{},\tnon_es:{},\toc_size{},\tf1:{},\tf2:{},\tf3:{},\tp1:{},\tp2:{},\tp3:{},\tp4:{},\tp5:{},\tp6:{},\tp7:{},\tbr1:{},\tbr2:{},\n",
             tqid,
             query_stat_logging[tqid].term_cnt,
             query_stat_logging[tqid].while_cnt,
