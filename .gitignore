@@ -5,6 +5,13 @@ data/
 debug/
 pisa_config.hpp
 
+analysis/logs/
+analysis/.ipynb_checkpoints
+
+external/boost-cmake
+external/gumbo-parser
+external/wapopp
+
 # Python junk
 *.pyc
 
