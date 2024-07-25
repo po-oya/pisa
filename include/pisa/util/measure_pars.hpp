@@ -29,6 +29,10 @@ struct block_max_score_query_stat_logging{
     uint64_t oc_size{0};
     int non_ess_val{0};
 
+    double alg_prep_ms{0};
+    double alg_while_ms{0};
+    double alg_total_ms{0};
+
     block_max_score_query_stat_logging(std::string id, size_t tc, size_t wc)
     : qid(id), term_cnt(tc), while_cnt(wc) {
 

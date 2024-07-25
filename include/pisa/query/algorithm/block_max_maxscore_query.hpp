@@ -21,6 +21,11 @@ struct block_max_maxscore_query {
     template <typename CursorRange>
     PISA_REQUIRES((concepts::BlockMaxPostingCursor<pisa::val_t<CursorRange>>))
     void operator()(CursorRange&& cursors, uint64_t max_docid) {
+        /**********/
+        auto start_alg = std::chrono::steady_clock::now();
+        block_max_score_query_stat_logging& this_query_stats = query_stat_logging[qid];
+        /**********/
+
         using Cursor = typename std::decay_t<CursorRange>::value_type;
         if (cursors.empty()) {
             return;
@@ -31,9 +36,7 @@ struct block_max_maxscore_query {
         for (auto& en: cursors) {
             ordered_cursors.push_back(&en);
         }
-        /**********/
-        // auto start_alg_prepartions = std::chrono::steady_clock::now();
-        /**********/
+ 
 
         // sort enumerators by increasing maxscore
         std::sort(ordered_cursors.begin(), ordered_cursors.end(), [](Cursor* lhs, Cursor* rhs) {
@@ -52,20 +55,13 @@ struct block_max_maxscore_query {
                 return lhs.docid() < rhs.docid();
             })->docid();
 
-        /**********/
-        // auto end_alg_prepartions = std::chrono::steady_clock::now();
-        // double alg_prepartions_ms =
-        // std::chrono::duration_cast<std::chrono::milliseconds>(end_alg_prepartions - start_alg_prepartions).count();
-        // spdlog::info("Time taken to prepare running alg on this query: {}ms", alg_prepartions_ms);
-        /**********/
 
         /**********/
-        block_max_score_query_stat_logging& this_query_stats = query_stat_logging[qid];
         this_query_stats.oc_size = ordered_cursors.size();
         /**********/
 
         /**********/
-        // auto start_alg_exec = std::chrono::steady_clock::now();
+        auto start_alg_exec = std::chrono::steady_clock::now();
         /**********/
 
         while (non_essential_lists < ordered_cursors.size() && cur_doc < max_docid) {
@@ -173,21 +169,33 @@ struct block_max_maxscore_query {
                     this_query_stats.p7_cnt_total++;
                     /**********/
                     non_essential_lists += 1;
-                    query_stat_logging[qid].p6_cnt_total++;
                 }
             }
             cur_doc = next_doc;
         }
 
         /**********/
-        this_query_stats.non_ess_val = non_essential_lists;
+        auto end_alg_exec = std::chrono::steady_clock::now();
+
+        double alg_prep_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(start_alg_exec - start_alg).count();
+
+        double alg_while_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_alg_exec - start_alg_exec).count();
+
+        
+        double alg_total_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_alg_exec - start_alg).count();
+
+        this_query_stats.alg_prep_ms = alg_prep_ms;
+        this_query_stats.alg_while_ms = alg_while_ms;        
+        this_query_stats.alg_total_ms = alg_total_ms;
+
+        // spdlog::info("Time taken to for running the alg on this query: {}ms", alg_exec_ms);
         /**********/
 
         /**********/
-        // auto end_alg_exec = std::chrono::steady_clock::now();
-        // double alg_exec_ms =
-        // std::chrono::duration_cast<std::chrono::milliseconds>(end_alg_exec - start_alg_exec).count();
-        // spdlog::info("Time taken to for running the alg on this query: {}ms", alg_exec_ms);
+        this_query_stats.non_ess_val = non_essential_lists;
         /**********/
     }
 
