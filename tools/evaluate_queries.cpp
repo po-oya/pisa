@@ -225,9 +225,9 @@ void evaluate_queries(
         "qid:{},\ttermcnt:{},\talg_prep_ms:{},\talg_while_ms:{},\talg_total_ms:{},\n",
             tqid,
             query_stat_logging[tqid].term_cnt,
-            query_stat_logging[tqid].talg_prep_ms,
-            query_stat_logging[tqid].talg_while_ms,
-            query_stat_logging[tqid].talg_total_ms,
+            query_stat_logging[tqid].alg_prep_ms,
+            query_stat_logging[tqid].alg_while_ms,
+            query_stat_logging[tqid].alg_total_ms
         );
 
         // std::cout << fmt::format(
