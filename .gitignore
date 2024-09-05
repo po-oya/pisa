@@ -1,5 +1,9 @@
 **/.DS_Store
 
+
+.gitignore'
+
+
 build*/
 data/
 debug/
@@ -7,6 +11,7 @@ pisa_config.hpp
 
 analysis/logs/
 analysis/.ipynb_checkpoints
+analysis/effenv/
 
 external/boost-cmake
 external/gumbo-parser
